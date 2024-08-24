@@ -78,6 +78,14 @@ void byte_received(uint8_t data) {
   // Each packet consists of 3 bytes, represented by a 32 bit unsigned int.
   static uint32_t buffer = 0;
   static int index = 0;
+
+  if (index == 0 && (data & 0x08) == 0) {
+    Serial.println("Bad byte 0. Discarding packet.");
+    index = 0;
+    buffer = 0;
+    return;
+  }
+
   buffer |= ((uint32_t)data) << index;
   index += 8;
   if (index == 24) {
@@ -90,9 +98,10 @@ void byte_received(uint8_t data) {
 void setup() {
   Serial.begin(115200);
   ps2::begin(CLK_PIN, DAT_PIN, byte_received);
-  delay(1000);
+  delay(500);
   Serial.println("Resetting");
   ps2::reset();
+  delay(500);
   Serial.println("Enabling");
   ps2::enable();
 }

@@ -21,6 +21,8 @@
 // SOFTWARE.
 
 #include <Arduino.h>
+#include "ps2.h"
+
 namespace ps2 {
 // Sample code for interacting with a PS2 mouse from a mega32u4.
 // Writing is synchronous. Async write is hard for the client to handle.
@@ -157,6 +159,7 @@ uint8_t read_byte() {
 
   return data;
 }
+}  // namespace
 
 bool write_byte(uint8_t data) {
   // Bring CLK low for 100 us.
@@ -208,11 +211,8 @@ bool write_byte(uint8_t data) {
   if (ack != 0xFA) {
     Serial.println("Error: did not receive ACK");
     return false;
-  } else {
-    return true;
   }
 }
-}  // namespace
 
 void begin(uint8_t clock_pin, uint8_t data_pin,
            void (*byte_received)(uint8_t)) {
@@ -247,5 +247,11 @@ bool ps2_command(uint16_t command, uint8_t* args, uint8_t* result) {
   enable_interrupt();
   return true;
 }
+
+void reset() { ps2_command(PSMOUSE_CMD_RESET_BAT, nullptr, nullptr); }
+
+void enable() { ps2_command(PSMOUSE_CMD_ENABLE, nullptr, nullptr); }
+
+void disable() { ps2_command(PSMOUSE_CMD_DISABLE, nullptr, nullptr); }
 
 };  // namespace ps2
